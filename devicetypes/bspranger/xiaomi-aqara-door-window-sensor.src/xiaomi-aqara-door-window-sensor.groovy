@@ -34,11 +34,11 @@
  *  veeceoh - added new refresh & configure code, fixed open/close override code
  */
 preferences {
-	input name: "dateformat", type: "enum", title: "Set Date Format\n US (MDY) - UK (DMY) - Other (YMD)", description: "Date Format", required: false, options:["US","UK","Other"]
-	input description: "Only change the settings below if you know what you're doing", displayDuringSetup: false, type: "paragraph", element: "paragraph", title: "ADVANCED SETTINGS"
-	input name: "voltsmax", title: "Max Volts\nA battery is at 100% at __ volts\nRange 2.8 to 3.4", type: "decimal", range: "2.8..3.4", defaultValue: 3, required: false
-	input name: "voltsmin", title: "Min Volts\nA battery is at 0% (needs replacing) at __ volts\nRange 2.0 to 2.7", type: "decimal", range: "2..2.7", defaultValue: 2.5, required: false
-} 
+    input name: "dateformat", type: "enum", title: "Set Date Format\n US (MDY) - UK (DMY) - Other (YMD)", description: "Date Format", required: false, options:["US","UK","Other"]
+    input description: "Only change the settings below if you know what you're doing", displayDuringSetup: false, type: "paragraph", element: "paragraph", title: "ADVANCED SETTINGS"
+    input name: "voltsmax", title: "Max Volts\nA battery is at 100% at __ volts\nRange 2.8 to 3.4", type: "decimal", range: "2.8..3.4", defaultValue: 3, required: false
+    input name: "voltsmin", title: "Min Volts\nA battery is at 0% (needs replacing) at __ volts\nRange 2.0 to 2.7", type: "decimal", range: "2..2.7", defaultValue: 2.5, required: false
+}
 
 metadata {
     definition (name: "Xiaomi Aqara Door/Window Sensor", namespace: "bspranger", author: "bspranger") {
@@ -84,8 +84,6 @@ metadata {
                 [value: 51, color: "#44b621"]
             ]
         }
-	valueTile("spacer", "spacer", decoration: "flat", inactiveLabel: false, width: 1, height: 1) {
-        }
         valueTile("lastcheckin", "device.lastCheckin", decoration: "flat", inactiveLabel: false, width: 4, height: 1) {
             state "default", label:'Last Checkin:\n${currentValue}'
         }
@@ -98,9 +96,12 @@ metadata {
         valueTile("batteryRuntime", "device.batteryRuntime", inactiveLabel: false, decoration: "flat", width: 4, height: 1) {
             state "batteryRuntime", label:'Battery Changed (tap to reset):\n ${currentValue}', unit:"", action:"resetBatteryRuntime"
         }
+        standardTile("empty2x2", "null", width: 2, height: 2, decoration: "flat") {
+            state "emptySmall", label:'', defaultState: true
+        }
 
         main (["contact"])
-	details(["contact","battery","resetClosed","resetOpen","spacer","lastcheckin", "spacer", "spacer", "batteryRuntime", "spacer"])
+        details(["contact","battery","resetClosed","resetOpen","lastcheckin", "batteryRuntime", "empty2x2"])
    }
 }
 
@@ -108,7 +109,7 @@ def parse(String description) {
     def result = zigbee.getEvent(description)
 
     // send event for heartbeat
-    def now = formatDate()    
+    def now = formatDate()
     def nowDate = new Date(now).getTime()
     sendEvent(name: "lastCheckin", value: now)
     sendEvent(name: "lastCheckinDate", value: nowDate, displayed: false)
@@ -137,15 +138,15 @@ private Map getBatteryResult(rawValue) {
     def maxVolts
 
     if(voltsmin == null || voltsmin == "")
-    	minVolts = 2.5
+    minVolts = 2.5
     else
-   	minVolts = voltsmin
-    
+    minVolts = voltsmin
+
     if(voltsmax == null || voltsmax == "")
-    	maxVolts = 3.0
+    maxVolts = 3.0
     else
-	maxVolts = voltsmax
-        
+    maxVolts = voltsmax
+
     def pct = (rawVolts - minVolts) / (maxVolts - minVolts)
     def roundedPct = Math.min(100, Math.round(pct * 100))
 
@@ -229,7 +230,7 @@ def resetClosed() {
 }
 
 def resetOpen() {
-    def now = formatDate() 
+    def now = formatDate()
     def nowDate = new Date(now).getTime()
     sendEvent(name: "lastOpened", value: now, displayed: false)
     sendEvent(name: "lastOpenedDate", value: nowDate, displayed: false)
@@ -237,7 +238,7 @@ def resetOpen() {
 }
 
 def resetBatteryRuntime() {
-    def now = formatDate(true)    
+    def now = formatDate(true)
     sendEvent(name: "batteryRuntime", value: now)
 }
 
@@ -270,7 +271,7 @@ def formatDate(batteryReset) {
         correctedTimezone = TimeZone.getTimeZone("GMT")
         log.error "${device.displayName}: Time Zone not set, so GMT was used. Please set up your location in the SmartThings mobile app."
         sendEvent(name: "error", value: "", descriptionText: "ERROR: Time Zone not set, so GMT was used. Please set up your location in the SmartThings mobile app.")
-    } 
+    }
     else {
         correctedTimezone = location.timeZone
     }

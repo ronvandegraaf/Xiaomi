@@ -48,7 +48,7 @@ preferences {
 	input description: "Only change the settings below if you know what you're doing", displayDuringSetup: false, type: "paragraph", element: "paragraph", title: "ADVANCED SETTINGS"
 	input name: "voltsmax", title: "Max Volts\nA battery is at 100% at __ volts\nRange 2.8 to 3.4", type: "decimal", range: "2.8..3.4", defaultValue: 3, required: false
 	input name: "voltsmin", title: "Min Volts\nA battery is at 0% (needs replacing) at __ volts\nRange 2.0 to 2.7", type: "decimal", range: "2..2.7", defaultValue: 2.5, required: false
-} 
+}
 
 metadata {
     definition (name: "Xiaomi Aqara Button", namespace: "bspranger", author: "bspranger") {
@@ -110,13 +110,13 @@ metadata {
 
 //adds functionality to press the centre tile as a virtualApp Button
 def push() {
-	log.debug "Virtual App Button Pressed"
-	def now = formatDate()
-	def nowDate = new Date(now).getTime()
-	sendEvent(name: "lastpressed", value: now, displayed: false)
-        sendEvent(name: "lastpressedDate", value: nowDate, displayed: false) 
-	sendEvent(name: "button", value: "pushed", data: [buttonNumber: 1], descriptionText: "$device.displayName app button was pushed", isStateChange: true)
-	sendEvent(name: "button", value: "released", data: [buttonNumber: 1], descriptionText: "$device.displayName app button was released", isStateChange: true)
+    log.debug "Virtual App Button Pressed"
+    def now = formatDate()
+    def nowDate = new Date(now).getTime()
+    sendEvent(name: "lastpressed", value: now, displayed: false)
+    sendEvent(name: "lastpressedDate", value: nowDate, displayed: false)
+    sendEvent(name: "button", value: "pushed", data: [buttonNumber: 1], descriptionText: "$device.displayName app button was pushed", isStateChange: true)
+    sendEvent(name: "button", value: "released", data: [buttonNumber: 1], descriptionText: "$device.displayName app button was released", isStateChange: true)
 }
 
 def parse(String description) {
@@ -130,7 +130,7 @@ def parse(String description) {
         log.debug "${device.displayName}: Parsing '${description}'"
     }
     //  send event for heartbeat
-    def now = formatDate()    
+    def now = formatDate()
     def nowDate = new Date(now).getTime()
     sendEvent(name: "lastCheckin", value: now)
     sendEvent(name: "lastCheckinDate", value: nowDate, displayed: false)
@@ -221,15 +221,15 @@ private Map getBatteryResult(rawValue) {
     def maxVolts
 
     if(voltsmin == null || voltsmin == "")
-    	minVolts = 2.5
+    minVolts = 2.5
     else
    	minVolts = voltsmin
-    
+
     if(voltsmax == null || voltsmax == "")
-    	maxVolts = 3.0
+    maxVolts = 3.0
     else
-	maxVolts = voltsmax    
- 
+    maxVolts = voltsmax
+
     def pct = (rawVolts - minVolts) / (maxVolts - minVolts)
     def roundedPct = Math.min(100, Math.round(pct * 100))
 
@@ -318,7 +318,7 @@ def installed() {
 
 def updated() {
     checkIntervalEvent("updated");
-    return 
+    return
 }
 
 private checkIntervalEvent(text) {
@@ -334,7 +334,7 @@ def formatDate(batteryReset) {
         correctedTimezone = TimeZone.getTimeZone("GMT")
         log.error "${device.displayName}: Time Zone not set, so GMT was used. Please set up your location in the SmartThings mobile app."
         sendEvent(name: "error", value: "", descriptionText: "ERROR: Time Zone not set, so GMT was used. Please set up your location in the SmartThings mobile app.")
-    } 
+    }
     else {
         correctedTimezone = location.timeZone
     }

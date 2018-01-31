@@ -44,7 +44,7 @@ metadata {
 
         fingerprint profileId: "0104", deviceId: "0104", inClusters: "0000, 0003, FFFF, 0019", outClusters: "0000, 0004, 0003, 0006, 0008, 0005, 0019", manufacturer: "LUMI", model: "lumi.sensor_motion", deviceJoinName: "Xiaomi Motion"
         fingerprint endpointId: "01", profileId: "0104", deviceId: "0107", inClusters: "0000,FFFF,0406,0400,0500,0001,0003", outClusters: "0000,0019", manufacturer: "LUMI", model: "lumi.sensor_motion.aq2", deviceJoinName: "Xiaomi Aqara Motion Sensor"
-	fingerprint profileID: "0104", deviceId: "0104", inClusters: "0000, 0400, 0406, FFFF", outClusters: "0000,0019", manufacturer: "LUMI", model: "lumi.sensor_motion", deviceJoinName: "Xiaomi Aqara Motion Sensor"
+        fingerprint profileID: "0104", deviceId: "0104", inClusters: "0000, 0400, 0406, FFFF", outClusters: "0000,0019", manufacturer: "LUMI", model: "lumi.sensor_motion", deviceJoinName: "Xiaomi Aqara Motion Sensor"
 
         command "resetBatteryRuntime"
         command "reset"
@@ -56,10 +56,10 @@ metadata {
 
     preferences {
         input name: "motionReset", "number", title: "Number of seconds after the last reported activity to report that motion is inactive (in seconds). \n\n(The device will always remain blind to motion for 60seconds following first detected motion. This value just clears the 'active' status after the number of seconds you set here but the device will still remain blind for 60seconds in normal operation.)", description: "", value:120, displayDuringSetup: true
-	input name: "dateformat", type: "enum", title: "Set Date Format\n US (MDY) - UK (DMY) - Other (YMD)", description: "Date Format", required: false, options:["US","UK","Other"]
-	input description: "Only change the settings below if you know what you're doing", displayDuringSetup: false, type: "paragraph", element: "paragraph", title: "ADVANCED SETTINGS"
-	input name: "voltsmax", title: "Max Volts\nA battery is at 100% at __ volts\nRange 2.8 to 3.4", type: "decimal", range: "2.8..3.4", defaultValue: 3, required: false
-	input name: "voltsmin", title: "Min Volts\nA battery is at 0% (needs replacing) at __ volts\nRange 2.0 to 2.7", type: "decimal", range: "2..2.7", defaultValue: 2.5, required: false
+        input name: "dateformat", type: "enum", title: "Set Date Format\n US (MDY) - UK (DMY) - Other (YMD)", description: "Date Format", required: false, options:["US","UK","Other"]
+        input description: "Only change the settings below if you know what you're doing", displayDuringSetup: false, type: "paragraph", element: "paragraph", title: "ADVANCED SETTINGS"
+        input name: "voltsmax", title: "Max Volts\nA battery is at 100% at __ volts\nRange 2.8 to 3.4", type: "decimal", range: "2.8..3.4", defaultValue: 3, required: false
+        input name: "voltsmin", title: "Min Volts\nA battery is at 0% (needs replacing) at __ volts\nRange 2.0 to 2.7", type: "decimal", range: "2..2.7", defaultValue: 2.5, required: false
     }
 
     tiles(scale: 2) {
@@ -92,12 +92,12 @@ metadata {
         valueTile("batteryRuntime", "device.batteryRuntime", inactiveLabel: false, decoration:"flat", width: 4, height: 1) {
              state "batteryRuntime", label:'Battery Changed (tap to reset):\n ${currentValue}', action:"resetBatteryRuntime"
         }
-        standardTile("empty1x1", "null", width: 1, height: 1, decoration:"flat") {
-             state "emptySmall", label:"", defaultState: true
+        standardTile("empty2x2", "null", width: 2, height: 2, decoration: "flat") {
+            state "emptySmall", label:'', defaultState: true
         }
 
         main(["motion"])
-        details(["motion", "battery", "illuminance", "reset", "lastcheckin", "batteryRuntime"])
+        details(["motion", "battery", "illuminance", "reset", "lastcheckin", "batteryRuntime", "empty2x2"])
     }
 }
 
@@ -105,7 +105,7 @@ def parse(String description) {
     log.debug "${device.displayName} Parsing: $description"
 
     //  send event for heartbeat
-    def now = formatDate()    
+    def now = formatDate()
     def nowDate = new Date(now).getTime()
     sendEvent(name: "lastCheckin", value: now)
     sendEvent(name: "lastCheckinDate", value: nowDate, displayed: false)
@@ -148,19 +148,19 @@ private Map parseIlluminanceMessage(String description) {
 
 private Map getBatteryResult(rawValue) {
     def rawVolts = rawValue / 1000
-	def minVolts
+    def minVolts
     def maxVolts
 
     if(voltsmin == null || voltsmin == "")
-    	minVolts = 2.5
+    minVolts = 2.5
     else
-   	minVolts = voltsmin
-    
+    minVolts = voltsmin
+
     if(voltsmax == null || voltsmax == "")
-    	maxVolts = 3.0
+    maxVolts = 3.0
     else
-	maxVolts = voltsmax
-    
+    maxVolts = voltsmax
+
     def pct = (rawVolts - minVolts) / (maxVolts - minVolts)
     def roundedPct = Math.min(100, Math.round(pct * 100))
 
@@ -350,7 +350,7 @@ def formatDate(batteryReset) {
         correctedTimezone = TimeZone.getTimeZone("GMT")
         log.error "${device.displayName}: Time Zone not set, so GMT was used. Please set up your location in the SmartThings mobile app."
         sendEvent(name: "error", value: "", descriptionText: "ERROR: Time Zone not set, so GMT was used. Please set up your location in the SmartThings mobile app.")
-    } 
+    }
     else {
         correctedTimezone = location.timeZone
     }
